@@ -34,6 +34,20 @@ const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'study-data');
 const EVENTS_FILE = path.join(DATA_DIR, 'word-explorer-events.jsonl');
 
+function handleStatus(req, res) {
+  send(res, 200, JSON.stringify({
+    ok: true,
+    app: 'word-explorer',
+    provider: AI_PROVIDER,
+    hasGeminiKey: Boolean(process.env.GEMINI_API_KEY),
+    hasOpenAIKey: Boolean(process.env.OPENAI_API_KEY),
+    geminiModel: GEMINI_MODEL,
+    geminiFallbackModels: GEMINI_FALLBACK_MODELS,
+    node: process.version,
+    serverTime: new Date().toISOString()
+  }));
+}
+
 function send(res, status, body, type = 'application/json') {
   res.writeHead(status, {
     'Content-Type': type,
@@ -501,6 +515,7 @@ async function handleWritingFeedback(req, res) {
       maxOutputTokens: 650
     });
   } catch (err) {
+    console.error('Writing feedback API error:', err.message || err);
     send(res, 503, JSON.stringify({ error: err.message || 'Writing feedback API unavailable.' }));
     return;
   }
@@ -729,6 +744,10 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.url.startsWith('/api/writing-feedback') && req.method === 'POST') {
       await handleWritingFeedback(req, res);
+      return;
+    }
+    if (req.url.startsWith('/api/status') && req.method === 'GET') {
+      handleStatus(req, res);
       return;
     }
     if (req.url.startsWith('/api/define') && req.method === 'POST') {
