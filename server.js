@@ -763,7 +763,7 @@ async function handleDefine(req, res) {
 }
 
 function serveFile(req, res) {
-  const urlPath = req.url === '/' ? '/index.html' : decodeURIComponent(req.url.split('?')[0]);
+  const urlPath = req.url === '/' ? '/word-explorer-chatgpt-demo.html' : decodeURIComponent(req.url.split('?')[0]);
   const filePath = path.join(ROOT, path.normalize(urlPath).replace(/^(\.\.[/\\])+/, ''));
   if (!filePath.startsWith(ROOT)) {
     send(res, 403, 'Forbidden', 'text/plain');
